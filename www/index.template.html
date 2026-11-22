@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<title>AB Motion Control App</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --bg:#f2f5f9; --card:#ffffff; --text:#141a24; --muted:#6b7280;
+  --primary:#7c3aed; --primary-dark:#6d28d9; --primary-soft:#ede9fe;
+  --danger:#ef4444; --danger-soft:#fee2e2; --success:#10b981; --success-soft:#d1fae5;
+  --gold:#b45309; --gold-soft:#fef3c7; --warn:#d97706; --warn-soft:#fef3c7;
+  --border:#e5e9f0; --radius:16px; --tabbar-h:64px;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0e1117; --card:#171c26; --text:#eef1f7; --muted:#9aa3b5;
+    --primary:#a78bfa; --primary-dark:#7c3aed; --primary-soft:#2e1065;
+    --danger:#f87171; --danger-soft:#3a1d1d; --success:#34d399; --success-soft:#123b2c;
+    --gold:#fbbf24; --gold-soft:#3d2f10; --warn:#fbbf24; --warn-soft:#3d2f10; --border:#262c3b;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh}
+#app{max-width:560px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative;background:var(--bg)}
+header.top{position:sticky;top:0;z-index:20;padding:calc(var(--sat) + 14px) 18px 16px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;border-radius:0 0 24px 24px;box-shadow:0 4px 18px rgba(124,58,237,.35)}
+header.top h1{margin:0;font-size:20px;font-weight:700}
+header.top .sub{margin:4px 0 0;font-size:13px;opacity:.85}
+main{padding:14px 14px calc(var(--tabbar-h) + var(--sab) + 40px)}
+.tab{display:none}
+.tab.active{display:block;animation:fadein .18s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(20,20,60,.05)}
+.card h3{margin:0 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.card h2{margin:0 0 6px;font-size:18px}
+.card p{margin:6px 0;line-height:1.55;font-size:14.5px}
+.card p.small{font-size:13px;color:var(--muted)}
+button{font-family:inherit}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:14px;cursor:pointer;background:var(--primary);color:#fff;font-size:16px;font-weight:700;min-height:52px;margin-bottom:12px}
+.btn:active{transform:scale(.98)}
+.btn.secondary{background:var(--primary-soft);color:var(--primary)}
+.btn.ghost{background:transparent;color:var(--primary);border:1px solid var(--border);min-height:44px;padding:10px;font-size:14px}
+input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:12px;font-size:16px;background:var(--card);color:var(--text);font-family:inherit;min-height:50px}
+input:focus{outline:2px solid var(--primary);border-color:var(--primary)}
+label.f{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.list-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;cursor:pointer;color:var(--text);font-size:15px}
+.list-item:active{transform:scale(.98)}
+.list-item .grow{flex:1}
+.list-item .t{font-weight:700}
+.list-item .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.badge{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:999px;background:var(--primary-soft);color:var(--primary)}
+.badge.gold{background:var(--gold-soft);color:var(--gold)}
+.badge.green{background:var(--success-soft);color:var(--success)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.progress{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:8px 0 2px}
+.progress>div{height:100%;background:var(--primary);border-radius:999px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.45}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.tbd{border:2px dashed var(--warn);background:var(--warn-soft);border-radius:12px;padding:12px;margin:10px 0;font-size:13.5px;line-height:1.5}
+.tbd b{color:var(--warn)}
+.quiz-opt{display:block;width:100%;text-align:left;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-size:15px;margin-bottom:10px;cursor:pointer;line-height:1.45}
+.quiz-opt.correct{border-color:var(--success);background:var(--success-soft)}
+.quiz-opt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.quiz-opt:disabled{opacity:.85;cursor:default}
+.explain{font-size:13.5px;line-height:1.55;background:var(--primary-soft);border-radius:12px;padding:12px;margin:10px 0}
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;height:calc(var(--tabbar-h) + var(--sab));padding-bottom:var(--sab);background:var(--card);border-top:1px solid var(--border);display:flex;z-index:30}
+.tabbar button{flex:1;border:none;background:none;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;padding-top:10px}
+.tabbar button.active{color:var(--primary)}
+.tabbar button .ic{display:block;font-size:20px;margin-bottom:2px}
+.back{color:var(--primary);background:none;border:none;font-size:14px;font-weight:700;cursor:pointer;padding:0 0 10px}
+h2.sec{font-size:15px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:20px 0 8px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--muted);flex:none}
+.kv b{text-align:right;font-variant-numeric:tabular-nums}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed var(--border);font-size:14.5px;line-height:1.5}
+.check:last-child{border-bottom:none}
+.check input{width:20px;height:20px;min-height:20px;flex:none;margin-top:2px;accent-color:var(--primary)}
+.check.done{color:var(--muted);text-decoration:line-through}
+a{color:var(--primary)}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+  <h1>AB Motion Control App</h1>
+  <div class="sub">Allen-Bradley motion, taught properly. Servo drives, VFDs, servo motors, starters.</div>
+</header>
+<main id="main"></main>
+<nav class="tabbar">
+  <button data-tab="learn" class="active"><span class="ic">🎓</span>Learn</button>
+  <button data-tab="library"><span class="ic">📚</span>Library</button>
+  <button data-tab="search"><span class="ic">🔎</span>Search</button>
+  <button data-tab="about"><span class="ic">ℹ️</span>About</button>
+</nav>
+</div>
+<script>
+/*__AB_DATA__*/
+
+const $ = s => document.querySelector(s);
+const main = $('#main');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DATA = AB_DATA;
+const byId = id => DATA.components.find(c => c.id === id);
+const modById = id => DATA.modules.find(m => m.id === id);
+const CAT = Object.fromEntries(DATA.categories.map(c => [c.id, c.label]));
+
+/* ---- progress (localStorage, guarded for file://) ---- */
+let progress = {lessons:{}, quiz:{}};
+try { progress = JSON.parse(localStorage.getItem('abmc-progress') || '{}'); progress.lessons = progress.lessons || {}; progress.quiz = progress.quiz || {}; } catch(e) {}
+function saveProgress(){ try { localStorage.setItem('abmc-progress', JSON.stringify(progress)); } catch(e) {} }
+function lessonDone(mid, lid){ return !!progress.lessons[mid + '::' + lid]; }
+function markLesson(mid, lid, done){ progress.lessons[mid + '::' + lid] = !!done; saveProgress(); }
+function moduleProgress(m){ const n = m.lessons.length; const d = m.lessons.filter(l => lessonDone(m.id, l.id)).length; return {done:d, total:n, pct: n ? Math.round(d/n*100) : 0}; }
+
+/* ---- navigation ---- */
+let view = {tab:'learn'};
+function go(tab){ view = {tab}; render(); window.scrollTo(0,0); }
+document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabbar button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); go(b.dataset.tab);
+}));
+function render(){
+  if (view.tab === 'learn') return renderLearn();
+  if (view.tab === 'library') return renderLibrary();
+  if (view.tab === 'search') return renderSearch();
+  if (view.tab === 'about') return renderAbout();
+  if (view.tab === 'module') return renderModule(view.moduleId);
+  if (view.tab === 'lesson') return renderLesson(view.moduleId, view.lessonIdx);
+  if (view.tab === 'quiz') return renderQuiz(view.moduleId);
+  if (view.tab === 'component') return renderComponent(view.componentId);
+}
+function backBtn(tab){ return `<button class="back" onclick="go('${tab}')">‹ Back</button>`; }
+
+/* ---- Learn tab: learning paths ---- */
+function renderLearn(){
+  const cards = DATA.modules.map(m => {
+    const p = moduleProgress(m);
+    const q = progress.quiz[m.id];
+    return `<div class="card">
+      <span class="badge">${esc(m.family || 'General')}</span>
+      <h2 style="margin-top:8px">${esc(m.title)}</h2>
+      <p class="small">${m.lessons.length} lessons · ${m.quiz.length} quiz questions${q ? ' · quiz best: ' + q.score + '/' + q.total : ''}</p>
+      <div class="progress"><div style="width:${p.pct}%"></div></div>
+      <p class="small">${p.done}/${p.total} lessons done · ${p.pct}%</p>
+      <button class="btn" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)">${p.done ? 'Continue' : 'Start path'}</button>
+    </div>`;
+  }).join('');
+  main.innerHTML = `<h2 class="sec">Learning paths</h2>${cards}
+  <div class="card"><h3>How to use this app</h3>
+  <p>Work a path top to bottom: each lesson teaches one piece, then the quiz checks it. Every procedure and parameter number comes from a Rockwell manual — anything not yet verified is marked TBD, never guessed.</p></div>`;
+}
+
+/* ---- Module view ---- */
+function renderModule(mid){
+  const m = modById(mid); if (!m) return go('learn');
+  const p = moduleProgress(m);
+  const lessons = m.lessons.map((l, i) => {
+    const done = lessonDone(m.id, l.id);
+    return `<button class="list-item" onclick="view={tab:'lesson',moduleId:'${m.id}',lessonIdx:${i}};render();window.scrollTo(0,0)">
+      <span style="font-size:18px">${done ? '✅' : '⬜'}</span>
+      <span class="grow"><span class="t">${i+1}. ${esc(l.title)}</span></span><span>›</span></button>`;
+  }).join('');
+  main.innerHTML = `${backBtn('learn')}
+  <div class="card"><span class="badge">${esc(m.family || 'General')}</span>
+  <h2 style="margin-top:8px">${esc(m.title)}</h2>
+  <div class="progress"><div style="width:${p.pct}%"></div></div>
+  <p class="small">${p.done}/${p.total} lessons done</p>
+  <button class="btn" onclick="view={tab:'quiz',moduleId:'${m.id}'};render();window.scrollTo(0,0)">Take the quiz (${m.quiz.length} questions)</button></div>
+  <h2 class="sec">Lessons</h2>${lessons}`;
+}
+
+/* ---- Lesson view ---- */
+function renderLesson(mid, idx){
+  const m = modById(mid); if (!m) return go('learn');
+  const l = m.lessons[idx]; if (!l) return renderModule(mid);
+  const done = lessonDone(m.id, l.id);
+  const body = esc(l.body).replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+  const links = (l.componentIds || []).map(id => { const c = byId(id); return c ? `<button class="list-item" onclick="view={tab:'component',componentId:'${c.id}'};render();window.scrollTo(0,0)"><span class="grow"><span class="t">${esc(c.family)}</span><span class="s">${esc(c.name)}</span></span><span>›</span></button>` : ''; }).join('');
+  const prev = idx > 0 ? `<button class="btn secondary" onclick="view={tab:'lesson',moduleId:'${m.id}',lessonIdx:${idx-1}};render();window.scrollTo(0,0)">‹ Previous lesson</button>` : '';
+  const next = idx < m.lessons.length - 1
+    ? `<button class="btn" onclick="view={tab:'lesson',moduleId:'${m.id}',lessonIdx:${idx+1}};render();window.scrollTo(0,0)">Next lesson ›</button>`
+    : `<button class="btn" onclick="view={tab:'quiz',moduleId:'${m.id}'};render();window.scrollTo(0,0)">Take the quiz ›</button>`;
+  main.innerHTML = `<button class="back" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)">‹ Back to ${esc(m.title)}</button>
+  <div class="card"><span class="badge">Lesson ${idx+1} of ${m.lessons.length}</span>
+  <h2 style="margin-top:8px">${esc(l.title)}</h2><p>${body}</p>
+  <label class="check ${done ? 'done' : ''}"><input type="checkbox" ${done ? 'checked' : ''} onchange="markLesson('${m.id}','${l.id}',this.checked);render()"> <span>Mark this lesson done</span></label></div>
+  ${links ? `<h2 class="sec">Components in this lesson</h2>${links}` : ''}
+  ${prev}${next}`;
+}
+
+/* ---- Quiz view ---- */
+let quizState = null;
+function renderQuiz(mid){
+  const m = modById(mid); if (!m) return go('learn');
+  if (!quizState || quizState.moduleId !== mid) quizState = {moduleId: mid, idx: 0, answers: [], picked: -1};
+  const q = m.quiz[quizState.idx];
+  if (!q){
+    const score = quizState.answers.filter((a, i) => a === m.quiz[i].answer).length;
+    const best = progress.quiz[mid];
+    if (!best || score > best.score){ progress.quiz[mid] = {score, total: m.quiz.length}; saveProgress(); }
+    main.innerHTML = `<button class="back" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)">‹ Back to ${esc(m.title)}</button>
+    <div class="card"><h2>Quiz done</h2><p style="font-size:28px;font-weight:800">You scored ${score} / ${m.quiz.length}</p>
+    <p>${score === m.quiz.length ? 'Perfect. You know this family.' : score >= m.quiz.length * 0.7 ? 'Solid. Re-read the lessons you missed and retake it.' : 'Go back through the lessons, then retake the quiz.'}</p>
+    <button class="btn" onclick="quizState=null;renderQuiz('${m.id}')">Retake quiz</button>
+    <button class="btn secondary" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)">Back to path</button></div>`;
+    return;
+  }
+  const opts = q.options.map((o, i) => {
+    let cls = '';
+    if (quizState.picked >= 0){
+      if (i === q.answer) cls = 'correct';
+      else if (i === quizState.picked) cls = 'wrong';
+    }
+    return `<button class="quiz-opt ${cls}" ${quizState.picked >= 0 ? 'disabled' : ''} onclick="quizPick(${i})">${esc(o)}</button>`;
+  }).join('');
+  const expl = quizState.picked >= 0 ? `<div class="explain"><b>${quizState.picked === q.answer ? 'Correct.' : 'Not quite.'}</b> ${esc(q.explain || '')}</div>
+  <button class="btn" onclick="quizNext()">${quizState.idx < m.quiz.length - 1 ? 'Next question ›' : 'See my score'}</button>` : '';
+  main.innerHTML = `<button class="back" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)">‹ Back to ${esc(m.title)}</button>
+  <div class="card"><span class="badge">Question ${quizState.idx + 1} of ${m.quiz.length}</span>
+  <h2 style="margin-top:8px">${esc(q.q)}</h2>${opts}${expl}</div>`;
+}
+function quizPick(i){
+  const m = modById(quizState.moduleId);
+  quizState.picked = i; quizState.answers[quizState.idx] = i; renderQuiz(quizState.moduleId);
+}
+function quizNext(){ quizState.idx++; quizState.picked = -1; renderQuiz(quizState.moduleId); }
+
+/* ---- Library tab ---- */
+function renderLibrary(){
+  const groups = DATA.categories.map(cat => {
+    const comps = DATA.components.filter(c => c.category === cat.id);
+    const items = comps.map(c => `<button class="list-item" onclick="view={tab:'component',componentId:'${c.id}'};render();window.scrollTo(0,0)">
+      <span class="grow"><span class="t">${esc(c.family)}</span><span class="s">${esc(c.name)}${c.catalogNumbers && c.catalogNumbers.length ? ' · ' + esc(c.catalogNumbers[0]) : ''}</span></span><span>›</span></button>`).join('');
+    return `<h2 class="sec">${esc(cat.label)} (${comps.length})</h2>${items}`;
+  }).join('');
+  main.innerHTML = `<h2 class="sec">Component library — ${DATA.components.length} families</h2>${groups}`;
+}
+
+/* ---- Search tab ---- */
+function renderSearch(){
+  main.innerHTML = `<h2 class="sec">Search</h2>
+  <div class="card"><label class="f">Catalog number or name</label>
+  <input id="q" type="search" placeholder="e.g. 2198-D057, MPL-B4530K, SMC-50" oninput="doSearch(this.value)">
+  <p class="small">Searches family names, component names, and catalog numbers.</p></div>
+  <div id="results"></div>`;
+  const input = $('#q'); input.focus();
+}
+function doSearch(q){
+  q = (q || '').trim().toLowerCase();
+  const box = $('#results'); if (!box) return;
+  if (q.length < 2){ box.innerHTML = ''; return; }
+  const hits = DATA.components.filter(c =>
+    (c.family + ' ' + c.name + ' ' + (c.catalogNumbers || []).join(' ')).toLowerCase().includes(q));
+  box.innerHTML = hits.length ? hits.map(c => `<button class="list-item" onclick="view={tab:'component',componentId:'${c.id}'};render();window.scrollTo(0,0)">
+    <span class="grow"><span class="t">${esc(c.family)}</span><span class="s">${esc(c.name)}${c.catalogNumbers && c.catalogNumbers.length ? ' · ' + esc(c.catalogNumbers[0]) : ''}</span></span><span>›</span></button>`).join('')
+    : `<div class="card"><p>No match. Try a family name (Kinetix 5700), a catalog number (25B-D010N114), or a part of one.</p></div>`;
+}
+
+/* ---- Component detail ---- */
+function tbdBlock(list){
+  if (!list || !list.length) return '';
+  return `<div class="tbd"><b>⚠ Not yet verified — do not teach as fact.</b><ul style="margin:8px 0 0;padding-left:18px">${list.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>`;
+}
+function renderComponent(id){
+  const c = byId(id); if (!c) return go('library');
+  const cfg = c.configuration.map(s => `<tr><td><b>${esc(s.step)}</b><br><span style="color:var(--muted)">${esc(s.screen || '')}</span></td><td>${esc(s.parameter || '')}<br><b>${esc(s.value || '')}</b><br><span style="color:var(--muted);font-size:12px">${esc(s.source || '')}</span></td></tr>`).join('');
+  const faults = c.faults.map(f => `<tr><td><b>${esc(f.code)}</b></td><td>${esc(f.meaning)}<br><b>Fix:</b> ${esc(f.fix)}</td></tr>`).join('');
+  const w = c.wiring || {};
+  const wiring = `<div class="kv"><span>Power</span><b>${esc(w.power || 'TBD')}</b></div>
+  <div class="kv"><span>Feedback</span><b>${esc(w.feedback || 'TBD')}</b></div>
+  <div class="kv"><span>Safety</span><b>${esc(w.safety || 'TBD')}</b></div>
+  <div class="kv"><span>Network</span><b>${esc(w.network || 'TBD')}</b></div>`;
+  const comm = c.commissioning.map(x => `<label class="check"><input type="checkbox"> <span>${esc(x)}</span></label>`).join('');
+  const modules = DATA.modules.filter(m => (m.lessons || []).some(l => (l.componentIds || []).includes(c.id)));
+  const modLinks = modules.map(m => `<button class="list-item" onclick="view={tab:'module',moduleId:'${m.id}'};render();window.scrollTo(0,0)"><span class="grow"><span class="t">${esc(m.title)}</span></span><span>›</span></button>`).join('');
+  main.innerHTML = `${backBtn('library')}
+  <div class="card">
+    <span class="badge">${esc(CAT[c.category] || c.category)}</span>${c.subcategory ? ` <span class="badge gold">${esc(c.subcategory)}</span>` : ''}
+    <h2 style="margin-top:8px">${esc(c.family)}</h2>
+    <p class="small">${esc(c.name)}</p>
+    <div class="pill-row">${(c.catalogNumbers || []).map(n => `<span class="badge">${esc(n)}</span>`).join('')}</div>
+    <h3>What it is</h3><p>${esc(c.whatItIs)}</p>
+    <h3>When to use it</h3><p>${esc(c.whenToUse)}</p>
+    <h3>Selection and sizing</h3><p>${esc(c.selection)}</p>
+    ${tbdBlock(c.tbd)}
+  </div>
+  <div class="card"><h3>Wiring</h3>${wiring}</div>
+  ${cfg ? `<div class="card"><h3>Configuration — verified steps</h3><table><tr><th>Step</th><th>Parameter / value</th></tr>${cfg}</table></div>` : ''}
+  ${comm ? `<div class="card"><h3>Commissioning checklist</h3>${comm}</div>` : ''}
+  <div class="card"><h3>Tuning basics</h3><p>${esc(c.tuning)}</p></div>
+  ${faults ? `<div class="card"><h3>Common faults</h3><table><tr><th>Code</th><th>Meaning / fix</th></tr>${faults}</table></div>` : ''}
+  ${modLinks ? `<h2 class="sec">Learn it in a path</h2>${modLinks}` : ''}
+  <div class="card"><h3>Manual</h3><p>${c.manualUrl && c.manualUrl !== 'TBD' ? `<a href="${esc(c.manualUrl)}" target="_blank" rel="noopener">Open the Rockwell manual ↗</a>` : 'Manual link TBD — see the TBD list above.'}</p>
+  <p class="small">Sources: ${(c.sources || []).map(s => esc(s)).join('<br>') || 'None listed.'}</p></div>`;
+}
+
+/* ---- About tab ---- */
+function renderAbout(){
+  const s = DATA.stats;
+  main.innerHTML = `<h2 class="sec">About this app</h2>
+  <div class="card"><h3>AB Motion Control App</h3>
+  <p>A training app for Allen-Bradley motion control: servo drives, VFDs, servo motors, and starters. It teaches how to use the components, deep not surface: selection, wiring, configuration, commissioning, tuning, and faults.</p>
+  <p class="small">Version ${esc(DATA.version)} · ${s.families} families · ${s.modules} learning paths · ${s.lessons} lessons · ${s.quizQuestions} quiz questions · ${s.configSteps} verified configuration steps · ${s.faults} faults documented.</p></div>
+  <div class="card"><h3>Verification rule</h3>
+  <p>Every procedure, parameter number, and spec in this app comes from a Rockwell manual, user manual, or technote that was actually read. Anything not verified is marked <b>TBD</b> and lists the source needed. Nothing here is guessed.</p>
+  <p class="small">${s.tbdItems} TBD items remain across the app. Two lifecycle notes: Bulletin 140M was discontinued 31 March 2025 (replacement 140MT), and PowerFlex 4/40 was discontinued 30 June 2025 (replaced by 523/525).</p></div>
+  <div class="card"><h3>Works offline</h3><p>All content is bundled in the app. No account, no server, no signal needed on the plant floor.</p></div>`;
+}
+
+render();
+</script>
+</body>
+</html>
