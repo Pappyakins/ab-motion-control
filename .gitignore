@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Capacitor generated (rebuilt by `npx cap sync`)
+ios/App/App/public/
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+
+# Android build outputs
+android/build/
+android/app/build/
+android/.gradle/
+android/app/*.apk
+android/app/*.aab
+android/captures/
+
+# IDE
+*.iml
+.idea/
+local.properties

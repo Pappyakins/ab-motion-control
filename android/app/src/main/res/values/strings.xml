@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AB Motion Control App</string>
+    <string name="title_activity_main">AB Motion Control App</string>
+    <string name="package_name">com.jakinscraft.abmotioncontrol</string>
+    <string name="custom_url_scheme">com.jakinscraft.abmotioncontrol</string>
+</resources>
